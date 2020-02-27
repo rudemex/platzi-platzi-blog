@@ -3,10 +3,35 @@ import { connect } from "react-redux";
 
 import * as usuariosActions from "../../actions/usuariosActions";
 
+import Spinner from "../General/Spinner";
+import Fatal from "../General/Fatal"
+
 class Usuarios extends Component {
-  componentDidMount() {
+  async componentDidMount() {
     this.props.traerTodos();
   }
+
+  ponerContenido = () => {
+    if (this.props.cargando) {
+      return <Spinner />;
+    }
+
+    if (this.props.error){
+        return <Fatal msg={this.props.error}/>;
+    }
+    return (
+      <table className="tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Enlace</th>
+          </tr>
+        </thead>
+        <tbody>{this.ponerFilas()}</tbody>
+      </table>
+    );
+  };
 
   ponerFilas = () =>
     this.props.usuarios.map(usuario => (
@@ -18,20 +43,9 @@ class Usuarios extends Component {
     ));
 
   render() {
-    return (
-      <div>
-        <table className="tabla">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Correo</th>
-              <th>Enlace</th>
-            </tr>
-          </thead>
-          <tbody>{this.ponerFilas()}</tbody>
-        </table>
-      </div>
-    );
+    //console.log(this.props.cargando)
+    //console.log(this.props.error)
+    return <div>{this.ponerContenido()}</div>;
   }
 }
 
