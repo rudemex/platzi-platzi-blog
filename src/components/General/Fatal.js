@@ -1,10 +1,9 @@
-import React from "react";
-import "../../css/spinner.css";
+import React from 'react';
 
-const Fatal = props => (
-  <h2 className="center rojo">
-    {props.msg}
-  </h2>
+const Fatal = (props) => (
+    <h2 className='center rojo'>
+      { props.mensaje }
+    </h2>
 );
 
 export default Fatal;
