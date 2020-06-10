@@ -1,14 +1,14 @@
-import axios from 'axios';
+import axios from "axios";
 import {
   CARGANDO,
   ERROR,
-  TRAER_POR_USUARIO
-} from '../types/publicacionesTypes';
-import * as usuariosTypes from '../types/usuariosTypes';
+  ACTUALIZAR
+} from "../types/publicacionesTypes";
+import * as usuariosTypes from "../types/usuariosTypes";
 
 const { TRAER_TODOS: USUARIOS_TRAER_TODOS } = usuariosTypes;
 
-export const traerPorUsuario = (key) => async (dispatch, getState) => {
+export const traerPorUsuario = key => async (dispatch, getState) => {
   dispatch({
     type: CARGANDO
   });
@@ -18,14 +18,20 @@ export const traerPorUsuario = (key) => async (dispatch, getState) => {
   const usuario_id = usuarios[key].id;
 
   try {
-    const respuesta = await axios.get(`https://jsonplaceholder.typicode.com/posts?userId=${usuario_id}`);
-    const publicaciones_actualizadas = [
-      ...publicaciones,
-      respuesta.data
-    ];
+    const respuesta = await axios.get(
+      `https://jsonplaceholder.typicode.com/posts?userId=${usuario_id}`
+    );
+
+    const nuevas = respuesta.data.map(publicacion => ({
+      ...publicacion,
+      comentarios: [],
+      abierto: false
+    }));
+
+    const publicaciones_actualizadas = [...publicaciones, nuevas];
 
     dispatch({
-      type: TRAER_POR_USUARIO,
+      type: ACTUALIZAR,
       payload: publicaciones_actualizadas
     });
 
@@ -40,12 +46,31 @@ export const traerPorUsuario = (key) => async (dispatch, getState) => {
       type: USUARIOS_TRAER_TODOS,
       payload: usuarios_actualizados
     });
-  }
-  catch (error) {
+  } catch (error) {
     console.log(error.message);
     dispatch({
       type: ERROR,
-      payload: 'Publicaciones no disponibles.'
+      payload: "Publicaciones no disponibles."
     });
   }
+};
+
+export const abrirCerar = (pub_key,com_key) => (dispatch, getState) => {
+  //console.log(pub_key,com_key);
+  const { publicaciones } = getState().publicacionesReducer;
+  const seleccionada = publicaciones[pub_key][com_key];
+
+  const actualizada = {
+    ...seleccionada,
+    abierto: !seleccionada.abierto
+  }
+
+  const publicaciones_actualizadas = [...publicaciones];
+  publicaciones_actualizadas[pub_key] = [...publicaciones[pub_key]];
+  publicaciones_actualizadas[pub_key][com_key] = actualizada;
+
+  dispatch({
+    type: ACTUALIZAR,
+    payload: publicaciones_actualizadas
+  });
 };
